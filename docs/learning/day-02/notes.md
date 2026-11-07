@@ -16,4 +16,8 @@
 - arguments
 - print & return
 - input validation & type conversion
+- returning None
+
+# 4. Validation & Exception handling
+- try & except
 - 
