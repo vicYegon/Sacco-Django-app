@@ -7,10 +7,12 @@
 - list
 - dict
 
-# 2. Conditionals
+# 2. Conditionals and loops
 - if
 - elif
 - else
+- while
+
 
 # 3. Functions
 - arguments
