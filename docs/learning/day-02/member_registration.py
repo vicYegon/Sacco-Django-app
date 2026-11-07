@@ -53,7 +53,7 @@ def generate_membership_number(member_count):
 
 
 # get member details function
-def get_member_details():
+def get_member_details(members):
     print("\nEnter Your Details")
     print("-" * 30)
 
@@ -67,8 +67,15 @@ def get_member_details():
     while True:
         national_id = validate_national_id(input("National ID: "))
 
-        if national_id is not None:
-            break 
+        if national_id is None:
+            continue
+
+        if is_duplicate_national_id(national_id, members):
+            print("Error: A member with this national ID already exists.")
+            print("Please enter a diffrent National ID.")
+            continue
+
+        break
 
     while True:
         phone_number = validate_phone(input("Phone Number: "))
@@ -218,10 +225,10 @@ def is_duplicate_national_id(national_id, members):
         if member.national_id == national_id:
             return True
 
-    return false
+    return False
 
 def register_member(members):
-    member_details = get_member_details()
+    member_details = get_member_details(members)
 
     if member_details is None:
         print("Registration cancelled.")
@@ -258,7 +265,8 @@ def view_members(members):
         print(
             f"{member.membership_number} | "
             f"{member.full_name} | "
-            f"{member.phone_number}"
+            f"{member.phone_number} | "  
+            f"{member.status}"
         )
 
 #application menu
@@ -279,6 +287,7 @@ if __name__=="__main__":
 
     members = []
 
+    #creating application loop
     while True:
         display_menu()
 
@@ -290,8 +299,8 @@ if __name__=="__main__":
         elif choice == "2":
             view_members(members)
 
-        elif choice == "3"
-            print("\nThank you for using TBL SACCO management system")
+        elif choice == "3":
+            print("\nThank you for using SACCO management system")
             break
 
         else:
