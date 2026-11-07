@@ -12,7 +12,7 @@
 - elif
 - else
 - while
-
+- for
 
 # 3. Functions
 - arguments

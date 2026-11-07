@@ -51,7 +51,6 @@ class Member:
 def generate_membership_number(member_count):
     return f"SACCO-{member_count + 1:04d}"
 
-    
 
 # get member details function
 def get_member_details():
@@ -213,24 +212,88 @@ def validate_national_id(national_id):
 
     return national_id
 
+#checking for duplicate national ID's
+def is_duplicate_national_id(national_id, members):
+    for member in members:
+        if member.national_id == national_id:
+            return True
 
+    return false
 
+def register_member(members):
+    member_details = get_member_details()
 
+    if member_details is None:
+        print("Registration cancelled.")
+        return 
+
+    national_id = member_details["national_id"]
+
+    if is_duplicate_national_id(national_id, members):
+        print("Error: A member with this national ID already exists.")
+        return
+
+    membership_number = generate_membership_number(len(members))
+
+    member = Member(
+        membership_number=membership_number, 
+        **member_details
+    )
+
+    members.append(member)
+
+    print("\nMember successfully registered!")
+
+# function to display registered members
+def view_members(members):
+    #check wether member list is empty
+    if not members:
+        print("\nNo members registered yet.")
+        return
+
+    print("\nREGISTERED SACCO MEMBERS")
+    print("=" * 45)
+
+    for member in members:
+        print(
+            f"{member.membership_number} | "
+            f"{member.full_name} | "
+            f"{member.phone_number}"
+        )
+
+#application menu
+def display_menu():
+    print("\n" + "=" * 50)
+    print("           SACCO MAIN MENU")
+    print("=" * 50)
+
+    print("1. Register Member")
+    print("2. View Registered Members")
+    print("3. Exit")
+
+    print("=" * 50)
+
+# main program
 if __name__=="__main__":
     display_welcome()
 
     members = []
 
-    member_details = get_member_details()
-    
-    if member_details is not None:
-        membership_number = generate_membership_number(len(members))
+    while True:
+        display_menu()
 
-        member = Member(
-            membership_number=membership_number, 
-            **member_details
-        )
+        choice = input("Select an option (1-3): ").strip()
 
-        members.append(member)
+        if choice == "1":
+            register_member(members)
 
-        member.display_details()
+        elif choice == "2":
+            view_members(members)
+
+        elif choice == "3"
+            print("\nThank you for using TBL SACCO management system")
+            break
+
+        else:
+            print("Invalid option. Please select 1, 2, or 3.")
+
