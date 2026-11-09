@@ -42,9 +42,9 @@
 
 # Mocking user input
 -----------------------------------------------------------------
-# Challenges encountered
+## Challenges encountered
 
-### Challenge 1: Contribution validation error
+##### Challenge 1: Contribution validation error
 
 - The application raised:
 
@@ -52,13 +52,13 @@
 
 - Solution: `Investigated the contribution's data type, verified conversion to Decimal, and corrected the .as_tuple() method call.`
 
-### Challenge 2: Duplicate National ID detection occurred too late
+##### Challenge 2: Duplicate National ID detection occurred too late
 
 - The application continued requesting member information even when the National ID already existed.
 
 -  Solution: `Moved duplicate detection into the National ID input loop so the user receives immediate feedback.`
 
-### Challange 3: Automated registration test failed with StopIteration.
+##### Challange 3: Automated registration test failed with StopIteration.
 
 - Root cause: `The mocked phone number contained 11 digits instead of the expected 10.`
 
@@ -72,7 +72,7 @@
 - Always validate test data against application requirements.
 - Debugging should focus on identifying the root cause rather than just suppressing errors.
 
-### Lessons learned
+#### Lessons learned
 - input() returns a string.
 - Decimal is preferable to float for financial amounts.
 - Validation checks business requirements.

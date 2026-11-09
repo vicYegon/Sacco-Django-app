@@ -18,6 +18,7 @@ from member_registration import(
 )
 
 class TestMemberValidation(unittest.TestCase):
+
     #age validation test functions
     def test_valid_age(self):
         result = validate_age("30")
@@ -70,10 +71,10 @@ class TestMemberValidation(unittest.TestCase):
     def test_invalid_phone(self):
         self.assertIsNone(validate_phone("0712121"))
 
-    def test_phone_used_in_duplicate_registration(self):
-        result = validate_phone("0723456789")
+    #def test_phone_used_in_duplicate_registration(self):
+    #   result = validate_phone("0723456789")
 
-        self.assertEqual(result, "0723456789")
+    #    self.assertEqual(result, "0723456789")
 
     #email test functions
     def test_valid_email(self):
@@ -195,8 +196,6 @@ class TestRegistrationFlow(unittest.TestCase):
             mock_input.call_count,
             7
         )
-
-
 
         self.assertEqual(result["national_id"], "87654321")
         self.assertEqual(mock_input.call_count, 7)

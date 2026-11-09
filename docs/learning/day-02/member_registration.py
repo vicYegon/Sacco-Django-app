@@ -305,7 +305,3 @@ if __name__=="__main__":
 
         else:
             print("Invalid option. Please select 1, 2, or 3.")
-
-    print(validate_phone("0723456789"))
-    print(validate_phone("0712345678"))
-    print(validate_phone("+254712345678"))
