@@ -86,6 +86,15 @@ class MemberAPITests(APITestCase):
             monthly_contribution = Decimal("23000.00")
         )
 
+        self.valid_data = {
+            "full_name": "Jane Wanjiku",
+            "national_id": "23456789",
+            "phone_number": "0722111222",
+            "email": "jane@example.com",
+            "age":34,
+            "monthly_contribution":"1000.00",
+        }
+
     def test_unauthenticated_user_is_refused(self):
         response = self.client.get(self.url)
         self.assertIn(
@@ -111,9 +120,97 @@ class MemberAPITests(APITestCase):
         for field in ["id", "full_name", "phone_number", "email"]:
             self.assertIn(field, member)
 
-    def test_post_method_not_allowed(self):
+    def test_delete_method_not_allowed(self):
         self.client.force_authenticate(user=self.staff_user)
-        response = self.client.post(self.url, {})
-        self.assertEqual(
-            response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED
-        )
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+    def test_staff_can_register_member(self):
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.post(self.url, self.valid_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Member.objects.count(), 2)
+        self.assertIn("id", response.data)
+        self.assertEqual(response.data["national_id"], "23456789")
+
+    def test_registration_cleans_data(self):
+        self.client.force_authenticate(user=self.staff_user)
+        data = {
+            **self.valid_data,
+            "full_name": "  jane   wanjiku ",
+            "phone_number": "0722 111 222",
+        }
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        member = Member.objects.get(national_id="23456789")
+        self.assertEqual(member.full_name, "Jane Wanjiku")
+        self.assertEqual(member.phone_number, "0722111222")
+
+    def test_duplicate_national_id_rejected(self):
+        self.client.force_authenticate(user=self.staff_user)
+        data = {**self.valid_data, "national_id": "12345678"}
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("national_id", response.data)
+        self.assertEqual(Member.objects.count(), 1)
+
+    def test_invalid_phone_rejected(self):
+        self.client.force_authenticate(user=self.staff_user)
+        data = {**self.valid_data, "phone_number": "0812345678"}
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("phone_number", response.data)
+
+    def test_single_name_rejected(self):
+        self.client.force_authenticate(user=self.staff_user)
+        data = {**self.valid_data, "full_name": "Jane"}
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("full_name", response.data)
+
+    def test_national_id_with_letters_rejected(self):
+        self.client.force_authenticate(user=self.staff_user)
+        data = {**self.valid_data, "national_id": "2345A789"}
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("national_id", response.data)
+
+    def test_empty_submission_rejected(self):
+        self.client.force_authenticate(user=self.staff_user)
+        response = self.client.post(self.url, {}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        for field in ["full_name", "national_id", "phone_number"]:
+            self.assertIn(field, response.data)
+
+    def test_non_staff_cannot_register(self):
+        self.client.force_authenticate(user=self.normal_user)
+        response = self.client.post(self.url, self.valid_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(Member.objects.count(), 1)
+
+    def test_underage_member_rejected(self):
+        self.client.force_authenticate(user=self.staff_user)
+        data = {**self.valid_data, "age": 17}
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("age", response.data)
+        self.assertEqual(Member.objects.count(), 1)
+
+    def test_zero_contribution_rejected(self):
+        self.client.force_authenticate(user=self.staff_user)
+        data = {**self.valid_data, "monthly_contribution": "0.00"}
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("monthly_contribution", response.data)
+        self.assertEqual(Member.objects.count(), 1)

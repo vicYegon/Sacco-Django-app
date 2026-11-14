@@ -129,6 +129,7 @@ MAILERS = {
     },
 }
 
+#to speed up tests
 import sys
 
 if "test" in sys.argv:

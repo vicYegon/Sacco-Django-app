@@ -1,13 +1,15 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 
-from rest_framework.decorators import api_view
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
-from rest_framework.decorators import permission_classes
+
+
 
 from .models import Member
-from .serializers import MemberSerializer
+from .serializers import MemberSerializer, MemberRegistrationSerializer
 
 # Create your views here.
 def welcome(request):
@@ -15,14 +17,22 @@ def welcome(request):
         "Welcome to Sacco member management system"
     )
 
-@api_view(["GET"])
+@api_view(["GET", "POST"])
 @permission_classes([IsAdminUser])
 def member_list(request):
-    members = Member.objects.all()
+    if request.method == "GET":
+        members = Member.objects.all()
 
-    serializer = MemberSerializer(
-        members,
-        many = True
-    )
+        serializer = MemberSerializer(members, many = True)
 
-    return Response(serializer.data)
+        return Response(serializer.data)
+    
+    serializer = MemberRegistrationSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
