@@ -10,10 +10,7 @@ function MemberList({ members }) {
 
   return (
     <section>
-      <input
-        type="text"
-        placeholder="Search by name"
-        value={search}
+      <input type="text" placeholder="Search by name" value={search}
         onChange={(event) => setSearch(event.target.value)}
       />
 
