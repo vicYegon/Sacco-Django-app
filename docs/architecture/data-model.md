@@ -19,6 +19,9 @@ erDiagram
     TRANSACTION |o--o| TRANSACTION : reverses
     USER ||--o{ TRANSACTION : records
     USER ||--o{ AUDIT_LOG : "acts in"
+    FEE_TYPE ||--o{ MEMBER_FEE : "charged as"
+    MEMBER ||--o{ MEMBER_FEE : owes
+    MEMBER_FEE ||--o{ TRANSACTION : "paid by"
 ```
 ## 2. Tables
 

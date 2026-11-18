@@ -16,6 +16,7 @@ Acceptance criteria
 - Given the applicant is under 18, when I submit, then registration is rejected.
 - Given I am not a SACCO officer, when I try to register a member,
   then I am refused.
+- Member is only approved if they have paid registration fee.
 
 ### S-2 Approve a member
 As an Administrator, I want to approve or reject pending members,
@@ -27,6 +28,7 @@ Acceptance criteria
 - Given I registered this member myself, when I try to approve,
   then I am refused (maker-checker).
 - Given I reject, then I must enter a reason.
+- Member is only approved if they have paid registration fee in full.
 
 ## Savings (scope item 4)
 
@@ -92,3 +94,6 @@ Acceptance criteria
 - Given an approved loan, when I disburse with a reference, then a repayment
   schedule is generated and the loan becomes "active".
 - Given the loan is not approved, then disbursement is refused.
+
+### S-9 Registration fee
+- Recording a registration fee payment creates a transaction against the member's fee.
