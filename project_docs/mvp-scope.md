@@ -1,8 +1,8 @@
 # MVP Scope
 
 ## Pilot outcome
-A limited pilot in the first week of January 2027 with [confirm: number]
-members of [confirm: SACCO name], using test or approved data only.
+A limited pilot in the first week of January 2027 with 10
+members of TBL SACCO, using test or approved data only.
 
 ## Included
 1. Member registration, review and approval
