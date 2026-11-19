@@ -145,6 +145,60 @@ Conventions
 | ip_address | text | optional |
 | Rule | | insert-only, never edited |
 
+### FEE_TYPE
+
+The list of fees the SACCO charges (for example, the registration fee).
+It is general, so fees added later (annual fee, loan processing fee) need no new table.
+
+| Field | Type | Rules |
+|---|---|---|
+| id | Primary key | Generated automatically |
+| code | Text (20) | Required, unique, e.g. `REG` for the registration fee |
+| name | Text (100) | Required, e.g. "Registration fee" |
+| amount | Decimal (14,2) | Required, must be greater than 0. Amount in KES (to be confirmed by the SACCO) |
+| is_refundable | Yes/No | Required. Whether the fee is returned when a member exits (to be confirmed by the SACCO) |
+| is_active | Yes/No | Required, default Yes. Fees that are no longer charged are switched off, never deleted |
+| created_at | Date and time | Set automatically |
+
+**Rules**
+- A fee type is never deleted, because members' fee records point to it (PROTECT).
+- Changing `amount` affects only fees charged after the change. Fees already charged keep their own `amount_due`.
+
+### MEMBER_FEE
+
+One fee charged to one member. The registration fee record is created
+automatically when an officer registers a new member (story S-1).
+
+| Field | Type | Rules |
+|---|---|---|
+| id | Primary key | Generated automatically |
+| member_id | Link to MEMBER | Required. PROTECT: cannot delete a member who has fees |
+| fee_type_id | Link to FEE_TYPE | Required. PROTECT |
+| amount_due | Decimal (14,2) | Required, greater than 0. Copied from FEE_TYPE.amount when the fee is charged |
+| created_at | Date and time | Set automatically |
+| created_by | Link to USER | Required. The officer who registered the member |
+
+**Rules**
+- A member can have only one record per fee type (unique: member_id + fee_type_id).
+- There is no "amount paid" or "paid" column. The amount paid is calculated
+  from the ledger: credits minus debits on TRANSACTION rows linked to this fee.
+- A fee is settled when amount paid ≥ amount_due.
+- Payments, corrections and refunds are always TRANSACTION rows, never edits to this table.
+- The fee is SACCO income, not member savings. It never goes into the member's
+  savings ACCOUNT, so it does not count towards their balance, guarantee capacity
+  or loan limit.
+
+### Approval rule (MEMBER)
+
+A member can move from `pending` to `active` only when their registration fee
+(`REG`) is settled. The officer who approves must not be the officer who registered
+the member (maker-checker).
+
+### Change to TRANSACTION
+
+- New field: `member_fee_id`, an optional link to MEMBER_FEE (PROTECT).
+- Each transaction is linked to **exactly one** of `account_id`, `loan_id` or `member_fee_id`.
+
 ## 3. Balances are calculated, never edited
 
 Account balance
